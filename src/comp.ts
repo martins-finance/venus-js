@@ -909,3 +909,57 @@ export async function repayVAI(
     return e;
   }
 }
+
+
+export async function liquidateVAI(
+  borrower: string, 
+  repayAmount: string | number | BigNumber,
+  vTokenCollateral: string,
+  options: CallOptions = {}
+) : Promise<TrxResponse> {
+  await netId(this);
+  const errorPrefix = 'Venus [liquidateVAI] | ';
+
+  if (typeof borrower !== 'string') {
+    throw Error(errorPrefix + 'Argument `borrower` must be a string.');
+  }
+
+  try {
+    borrower = toChecksumAddress(borrower);
+  } catch(e) {
+    throw Error(errorPrefix + 'Argument `borrower` must be a valid Ethereum address.');
+  }
+
+  if (
+    typeof repayAmount !== 'number' &&
+    typeof repayAmount !== 'string' &&
+    !ethers.BigNumber.isBigNumber(repayAmount)
+  ) {
+    throw Error(errorPrefix + 'Argument `repayAmount` must be a string, number, or BigNumber.');
+  }
+
+  if (!options.mantissa) {
+    repayAmount = +repayAmount;
+    repayAmount = repayAmount * Math.pow(10, 18);
+  }
+
+  repayAmount = ethers.BigNumber.from(repayAmount);
+
+  try {
+    const comptrollerAddress = '0xada3E8CF9d5Bc965B38c84EA2306DC6AaDa68127';
+    const parameters = [ borrower, repayAmount, vTokenCollateral ];
+    const trxOptions: CallOptions = {
+      ...options,
+      _compoundProvider: this._provider,
+      abi: abi.VaiController,
+    };
+
+    return eth.trx(comptrollerAddress, 'liquidateVAI', parameters, trxOptions);
+  } catch(e) {
+    const errorPrefix = 'Venus [liquidateVAI] | ';
+    e.message = errorPrefix + e.message;
+    return e;
+  }
+
+  
+}

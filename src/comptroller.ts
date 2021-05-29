@@ -125,3 +125,103 @@ export async function exitMarket(
 
   return eth.trx(comptrollerAddress, 'exitMarket', parameters, trxOptions);
 }
+
+export async function getAssetsIn(
+  account: string
+) : Promise<TrxResponse> {
+  await netId(this);
+  //const errorPrefix = 'Venus [getAssetsIn] | ';
+
+  const comptrollerAddress = address[this._network.name].Comptroller;
+  const parameters = [ account ];
+
+  const trxOptions: CallOptions = {
+    _compoundProvider: this._provider,
+    abi: abi.Comptroller
+  };
+
+  return await eth.read(comptrollerAddress, 'getAssetsIn', parameters, trxOptions);
+}
+
+
+export async function checkMembership(
+  account: string,
+  token_address: string
+) : Promise<TrxResponse> {
+  await netId(this);
+  //const errorPrefix = 'Venus [checkMembership] | ';
+
+  const comptrollerAddress = address[this._network.name].Comptroller;
+  const parameters = [ account, token_address ];
+
+  const trxOptions: CallOptions = {
+    _compoundProvider: this._provider,
+    abi: abi.Comptroller
+  };
+
+  return await eth.read(comptrollerAddress, 'checkMembership', parameters, trxOptions);
+}
+
+
+export async function liquidateBorrowAllowed(
+  vTokenBorrowed: string,
+  vTokenCollateral: string,
+  liquidator: string,
+  borrower: string,
+  repayAmount: number,
+  options: CallOptions = {}
+) : Promise<TrxResponse> {
+  await netId(this);
+  //const errorPrefix = 'Venus [liquidateBorrowAllowed] | ';
+
+  const comptrollerAddress = address[this._network.name].Comptroller;
+  const parameters = [ vTokenBorrowed, vTokenCollateral, liquidator, borrower, repayAmount ];
+
+  const trxOptions: CallOptions = {
+    _compoundProvider: this._provider,
+    abi: abi.Comptroller,
+    ...options
+  };
+
+  return await eth.read(comptrollerAddress, 'liquidateBorrowAllowed', parameters, trxOptions);
+}
+
+
+export async function getAccountLiquidity(
+  account: string,
+  options: CallOptions = {}
+) : Promise<TrxResponse> {
+  await netId(this);
+
+  const comptrollerAddress = address[this._network.name].Comptroller;
+  const parameters = [ account ];
+
+  const trxOptions: CallOptions = {
+    _compoundProvider: this._provider,
+    abi: abi.Comptroller,
+    ...options
+  };
+
+  return await eth.read(comptrollerAddress, 'getAccountLiquidity', parameters, trxOptions);
+}
+
+export async function getHypotheticalAccountLiquidity(
+  account: string,
+  vTokenModify: string,
+  redeemTokens: number,
+  borrowAmount: number,
+  options: CallOptions = {}
+) : Promise<TrxResponse> {
+  await netId(this);
+
+  const comptrollerAddress = address[this._network.name].Comptroller;
+  const parameters = [ account, vTokenModify, redeemTokens, borrowAmount ];
+
+  const trxOptions: CallOptions = {
+    _compoundProvider: this._provider,
+    abi: abi.Comptroller,
+    ...options
+  };
+
+  return await eth.read(comptrollerAddress, 'getHypotheticalAccountLiquidity', parameters, trxOptions);
+}

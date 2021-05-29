@@ -397,3 +397,177 @@ export async function repayBorrow(
 
   return eth.trx(vTokenAddress, method, parameters, trxOptions);
 }
+
+/**
+ * Applies the EIP-55 checksum to an Ethereum address.
+ *
+ * @param {string} _address The Ethereum address to apply the checksum.
+ *
+ * @returns {string} Returns a string of the Ethereum address.
+ */
+ function toChecksumAddress(_address) {
+  const chars = _address.toLowerCase().substring(2).split('');
+  const expanded = new Uint8Array(40);
+
+  for (let i = 0; i < 40; i++) {
+    expanded[i] = chars[i].charCodeAt(0);
+  }
+
+  const hash = ethers.utils.keccak256;(expanded);
+  let ret = '';
+
+  for (let i = 0; i < _address.length; i++) {
+    if (parseInt(hash[i], 16) >= 8) {
+      ret += _address[i].toUpperCase();
+    } else {
+      ret += _address[i];
+    }
+  }
+
+  return ret;
+}
+
+export async function liquidateBorrow(
+  asset: string,
+  borrower: string,
+  repayAmount: string | number | BigNumber,
+  seizevToken: string,
+  options: CallOptions = {}
+) : Promise<TrxResponse> {
+  await netId(this);
+  const errorPrefix = 'Venus [liquidateBorrow] | ';
+
+  const vTokenName = 'v' + asset;
+  const vTokenAddress = address[this._network.name][vTokenName];
+
+  if (!vTokenAddress || !underlyings.includes(asset)) {
+    throw Error(errorPrefix + 'Argument `asset` is not supported.');
+  }
+
+  if (typeof borrower !== 'string') {
+    throw Error(errorPrefix + 'Argument `borrower` must be a string.');
+  }
+
+  try {
+    borrower = toChecksumAddress(borrower);
+  } catch(e) {
+    throw Error(errorPrefix + 'Argument `borrower` must be a valid Ethereum address.');
+  }
+
+  if (
+    typeof repayAmount !== 'number' &&
+    typeof repayAmount !== 'string' &&
+    !ethers.BigNumber.isBigNumber(repayAmount)
+  ) {
+    throw Error(errorPrefix + 'Argument `repayAmount` must be a string, number, or BigNumber.');
+  }
+
+  if (!options.mantissa) {
+    repayAmount = +repayAmount;
+    repayAmount = repayAmount * Math.pow(10, decimals[asset]);
+  }
+  repayAmount = ethers.BigNumber.from(repayAmount);
+
+  const trxOptions: CallOptions = {
+    ...options,
+    _compoundProvider: this._provider,
+  };
+
+  const parameters:any = [ borrower ];
+  if (vTokenName === constants.vBNB) {
+    trxOptions.value = repayAmount;
+    trxOptions.abi = abi.vBNB;
+  } else {
+    parameters.push(repayAmount);
+    trxOptions.abi = abi.vBep20;
+  }
+  parameters.push(seizevToken);
+
+  return eth.trx(vTokenAddress, 'liquidateBorrow', parameters, trxOptions);
+}
+
+
+export async function borrowBalanceCurrent(
+  asset: string,
+  account: string,
+  options: CallOptions = {}
+) : Promise<TrxResponse> {
+  const errorPrefix = 'Venus [borrowBalanceCurrent] | ';
+
+  const vTokenName = 'v' + asset;
+  const vTokenAddress = address[this._network.name][vTokenName];
+
+  if (!vTokenAddress || !underlyings.includes(asset)) {
+    throw Error(errorPrefix + 'Argument `asset` is not supported.');
+  }
+
+  if (typeof account !== 'string') {
+    throw Error(errorPrefix + 'Argument `borrower` must be a string.');
+  }
+
+  try {
+    account = toChecksumAddress(account);
+  } catch(e) {
+    throw Error(errorPrefix + 'Argument `borrower` must be a valid Ethereum address.');
+  }
+
+  const parameters = [ account ];
+
+  const trxOptions: CallOptions = {
+    _compoundProvider: this._provider,
+    ...options
+  };
+
+  if (vTokenName === constants.vBNB) {
+    trxOptions.abi = abi.vBNB;
+  } else {
+    trxOptions.abi = abi.vBep20;
+  }
+  return await eth.read(vTokenAddress, 'borrowBalanceCurrent', parameters, trxOptions);
+}
+
+export async function approve(
+  asset: string,
+  spender: string,
+  amount: string | number | BigNumber,
+  options: CallOptions = {}
+) : Promise<TrxResponse> {
+  await netId(this);
+  const errorPrefix = 'Venus [approve] | ';
+
+  const vTokenName = asset;
+  const vTokenAddress = address[this._network.name][vTokenName];
+
+  if (!vTokenAddress || !underlyings.includes(asset)) {
+    throw Error(errorPrefix + 'Argument `asset` is not supported.');
+  }
+
+  if (typeof spender !== 'string') {
+    throw Error(errorPrefix + 'Argument `spender` must be a string.');
+  }
+
+  try {
+    spender = toChecksumAddress(spender);
+  } catch(e) {
+    throw Error(errorPrefix + 'Argument `spender` must be a valid address.');
+  }
+
+  if (
+    typeof amount !== 'number' &&
+    typeof amount !== 'string' &&
+    !ethers.BigNumber.isBigNumber(amount)
+  ) {
+    throw Error(errorPrefix + 'Argument `amount` must be a string, number, or BigNumber.');
+  }
+
+  const trxOptions: CallOptions = {
+    ...options,
+    _compoundProvider: this._provider,
+  };
+
+  const parameters = [ spender, amount ];
+  
+    trxOptions.abi = abi.Bep20;
+
+  return eth.trx(vTokenAddress, 'approve', parameters, trxOptions);
+}
