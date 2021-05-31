@@ -8,6 +8,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint ./src/*.ts",
     "build": "npm run lint && ./node_modules/.bin/tsc && npm run rollup",
+    "watch": "./node_modules/.bin/tsc -w",
     "docs": "./node_modules/typedoc/bin/typedoc --out ./docs/ ./src/",
     "venus_docs": "node ./scripts/venus-docs.js",
     "prepare": "npm run build",

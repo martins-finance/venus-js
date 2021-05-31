@@ -256,3 +256,17 @@ export async function liquidationIncentive() : Promise<string> {
   const liquidationIncentiveMantissa = await eth.read(comptrollerAddress, 'liquidationIncentiveMantissa', [],  trxOptions);
   return ethers.utils.formatEther(liquidationIncentiveMantissa);
 }
+
+export async function onMarketEntered(fromBlock:number, toBlock:number = null) : Promise<string> {
+  await netId(this);
+
+  const comptrollerAddress = address[this._network.name].Comptroller;
+
+  const trxOptions: CallOptions = {
+    _compoundProvider: this._provider,
+    abi: abi.Comptroller
+  };
+
+  return await eth.filter(comptrollerAddress, 'MarketEntered', [fromBlock, toBlock],  trxOptions);
+}
+

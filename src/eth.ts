@@ -9,6 +9,7 @@ import { AbiItem, CallOptions, Provider, ProviderNetwork } from './types';
 enum JsonRpc {
   EthSendTransaction,
   EthCall,
+  EthFilter,
   // NetVersion,
 }
 
@@ -88,6 +89,18 @@ function _ethJsonRpc(
       }).catch((error) => {
         try { delete parameters[parameters.length - 1].privateKey } catch (e) { }
         try { delete parameters[parameters.length - 1].mnemonic } catch (e) { }
+        reject({
+          message: 'Error occurred during [eth_call]. See {error}.',
+          error,
+          method,
+          parameters,
+        });
+      });
+    } else if (jsonRpcMethod === JsonRpc.EthFilter) {
+      const [fromBlock, toBlock] = parameters;
+      contract.queryFilter(method, fromBlock | 0, toBlock).then((result) => {
+        resolve(result);
+      }).catch((error) => {
         reject({
           message: 'Error occurred during [eth_call]. See {error}.',
           error,
@@ -197,6 +210,17 @@ export function trx(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
   return _ethJsonRpc(JsonRpc.EthSendTransaction, address, method, parameters, options);
+}
+
+ export function filter(
+  address: string,
+  method: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  parameters: any[] = [],
+  options: CallOptions = {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<any> {
+  return _ethJsonRpc(JsonRpc.EthFilter, address, method, parameters, options);
 }
 
 /**
