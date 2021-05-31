@@ -3,11 +3,12 @@
  * @desc These methods facilitate interactions with the Comptroller smart
  *     contract.
  */
-
+import { ethers } from 'ethers';
 import * as eth from './eth';
 import { netId } from './helpers';
 import { address, abi, cTokens } from './constants';
 import { CallOptions, TrxResponse } from './types';
+import { toChecksumAddress, getAssetNameByAddress } from './util';
 
 /**
  * Enters the user's address into Venus Protocol markets.
@@ -126,12 +127,20 @@ export async function exitMarket(
   return eth.trx(comptrollerAddress, 'exitMarket', parameters, trxOptions);
 }
 
-export async function getAssetsIn(
-  account: string
-) : Promise<TrxResponse> {
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+export async function getAssetsIn(account: string) : Promise<Array<any>> {
   await netId(this);
-  //const errorPrefix = 'Venus [getAssetsIn] | ';
+  const errorPrefix = 'Venus [getAssetsIn] | ';
 
+  if (typeof account !== 'string') {
+    throw Error(errorPrefix + 'Argument `account` must be a string.');
+  }
+
+  try {
+    account = toChecksumAddress(account);
+  } catch(e) {
+    throw Error(errorPrefix + 'Argument `account` must be a valid Ethereum address.');
+  }
   const comptrollerAddress = address[this._network.name].Comptroller;
   const parameters = [ account ];
 
@@ -140,7 +149,12 @@ export async function getAssetsIn(
     abi: abi.Comptroller
   };
 
-  return await eth.read(comptrollerAddress, 'getAssetsIn', parameters, trxOptions);
+  const assetsIn = await eth.read(comptrollerAddress, 'getAssetsIn', parameters, trxOptions);
+  const assets = []
+  for (const address of assetsIn) {
+    assets.push({ name: getAssetNameByAddress(address, this._network.name), address: address });
+  }
+  return assets;
 }
 
 
@@ -190,7 +204,7 @@ export async function liquidateBorrowAllowed(
 export async function getAccountLiquidity(
   account: string,
   options: CallOptions = {}
-) : Promise<TrxResponse> {
+) : Promise<string> {
   await netId(this);
 
   const comptrollerAddress = address[this._network.name].Comptroller;
@@ -202,26 +216,43 @@ export async function getAccountLiquidity(
     ...options
   };
 
-  return await eth.read(comptrollerAddress, 'getAccountLiquidity', parameters, trxOptions);
+  const response = await eth.read(comptrollerAddress, 'getAccountLiquidity', parameters, trxOptions);
+
+  const [error, liquidity, shortfall] = response;
+  if (!ethers.BigNumber.from(error).isZero()) {
+    throw new Error(`Error on network call. CODE: {error}`);
+  }
+  const liquidityBalance = ethers.BigNumber.from(liquidity).sub(
+    ethers.BigNumber.from(shortfall)
+  );
+  return  ethers.utils.formatEther(liquidityBalance);
+
 }
 
-export async function getHypotheticalAccountLiquidity(
-  account: string,
-  vTokenModify: string,
-  redeemTokens: number,
-  borrowAmount: number,
-  options: CallOptions = {}
-) : Promise<TrxResponse> {
+export async function closeFactor() : Promise<string> {
   await netId(this);
 
   const comptrollerAddress = address[this._network.name].Comptroller;
-  const parameters = [ account, vTokenModify, redeemTokens, borrowAmount ];
 
   const trxOptions: CallOptions = {
     _compoundProvider: this._provider,
-    abi: abi.Comptroller,
-    ...options
+    abi: abi.Comptroller
   };
 
-  return await eth.read(comptrollerAddress, 'getHypotheticalAccountLiquidity', parameters, trxOptions);
+  const closeFactorMantissa = await eth.read(comptrollerAddress, 'closeFactorMantissa', [],  trxOptions);
+  return ethers.utils.formatEther(closeFactorMantissa);
+}
+
+export async function liquidationIncentive() : Promise<string> {
+  await netId(this);
+
+  const comptrollerAddress = address[this._network.name].Comptroller;
+
+  const trxOptions: CallOptions = {
+    _compoundProvider: this._provider,
+    abi: abi.Comptroller
+  };
+
+  const liquidationIncentiveMantissa = await eth.read(comptrollerAddress, 'liquidationIncentiveMantissa', [],  trxOptions);
+  return ethers.utils.formatEther(liquidationIncentiveMantissa);
 }

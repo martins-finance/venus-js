@@ -24,40 +24,36 @@ const vBUSDAddress = '0x08e0A5575De71037aE36AbfAfb516595fE68e5e4';
 const vLTCAddress = '0xafc13bc065abee838540823431055d2ea52eba52';
 const venus = new Venus(provider,
   { privateKey: liquidator_privateKey });
-(async function () {
 
-  // console.log('')
-  // console.log('--- INITIAL REPORT ---')
-  // console.log('liquidator_wallet balance', await Venus.venus.getVenusBalance(liquidator_wallet, provider));
-  // console.log('borrower_wallet balance', await Venus.venus.getVenusBalance(borrower3_wallet, provider));
-  // console.log('borrower_wallet mintedVAIs', await venus.mintedVAIs(borrower4_wallet));
+
+  (async function () {
+
+    
+  const response = await venus.getAccountLiquidity(borrower4_wallet);
+  const [error, liquidity, shortfall] = response;
+  if (!Venus._ethers.BigNumber.from(error).isZero()) {
+    throw new Error(`Error on network call. CODE: {error}`);
+  }
+  const liquidityBalance = Venus._ethers.BigNumber.from(liquidity).sub(
+    Venus._ethers.BigNumber.from(shortfall)
+  );
+  const liquidityBalanceInEther = Venus._ethers.utils.formatEther(liquidityBalance);
+  console.log('borrower5_wallet getAccountLiquidity response', liquidityBalanceInEther);
   
-  // console.log('liquidator_wallet checkMembership vBNB response', await venus.checkMembership(liquidator_wallet, vBNBAddress));
-  // console.log('liquidator_wallet assetsIn', await venus.getAssetsIn(liquidator_wallet));
-  // console.log('liquidator_wallet balance', await Venus.eth.getBalance(liquidator_wallet, provider));
-  // console.log('')
-  // console.log('borrower_wallet checkMembership vBNB response', await venus.checkMembership(borrower4_wallet, vBNBAddress));
-  // console.log('borrower_wallet assetsIn', await venus.getAssetsIn(liquidator_wallet));
-  // console.log('borrower_wallet balance', await Venus.eth.getBalance(borrower4_wallet, provider));
-  // console.log('------')
-  // console.log('')
+  
+  const assetsIn = await venus.getAssetsIn(borrower5_wallet);
+  console.log('borrower5_wallet assetsIn', assetsIn);
 
-  let response = await venus.getHypotheticalAccountLiquidity(borrower1_wallet, BNBAddress, 0, 0);
-  console.log('borrower1_wallet getHypotheticalAccountLiquidity response', response);
+  for (const asset of assetsIn) {
+  //  console.log('borrower5_wallet checkMembership response', asset, await venus.checkMembership(borrower5_wallet, asset));
+    const balance = await venus.borrowBalanceCurrentByAddress(asset, borrower5_wallet);
+    const balanceInEther = Venus._ethers.utils.formatEther(balance);
+    console.log('borrowBalanceCurrentByAddress', balanceInEther);
+  }
+  
+  //console.log('borrower5_wallet balance', await Venus.eth.getBalance(borrower5_wallet, provider));
 
-  response = await venus.getHypotheticalAccountLiquidity(borrower2_wallet, BNBAddress, 0, 0);
-  console.log('borrower2_wallet getHypotheticalAccountLiquidity response', response);
-
-  response = await venus.getHypotheticalAccountLiquidity(borrower3_wallet, vBNBAddress, 0, 0);
-  console.log('borrower3_wallet getHypotheticalAccountLiquidity response', response);
-
-  response = await venus.getHypotheticalAccountLiquidity(borrower4_wallet, BNBAddress, 0, 0);
-  console.log('borrower4_wallet getHypotheticalAccountLiquidity response', response);
-
-  response = await venus.getAccountLiquidity(borrower5_wallet);
-  console.log('borrower5_wallet getAccountLiquidity response', response);
-
-  const trxOptions = { gasLimit: 2500000, mantissa: true };
+  // const trxOptions = { gasLimit: 2500000, mantissa: true };
   
   // response = await venus.approve("BUSD", liquidator_wallet, "fffffffffffffffffffffffffffffff", trxOptions);
   // console.log('liquidator_wallet aprove BUSD', await response.wait());
@@ -65,10 +61,10 @@ const venus = new Venus(provider,
   //const trx = await venus.liquidateBorrow("BNB", borrower4_wallet, '50000000000000000', vXVSAddress, trxOptions);
   //console.log('liquidateBorrow response', trx);
 
-  let xvsBalance = await venus.borrowBalanceCurrent("BUSD", borrower5_wallet);
-  console.log('borrowBalanceCurrent BUSD', xvsBalance);
-  const repayAmount = xvsBalance.div(3);
-  console.log('repayAmount BUSD', repayAmount);
+  //let xvsBalance = await venus.borrowBalanceCurrent("BUSD", borrower5_wallet);
+  // console.log('borrowBalanceCurrent BUSD', xvsBalance);
+  // const repayAmount = xvsBalance.div(3);
+  // console.log('repayAmount BUSD', repayAmount);
 
   //response = await venus.approve("LTC", liquidator_wallet, xvsBalance, trxOptions);
   //console.log('liquidator_wallet aprove LTC', await response.wait());
@@ -79,12 +75,12 @@ const venus = new Venus(provider,
   // const trx = await venus.liquidateBorrow("BUSD", borrower5_wallet, repayAmount, vLTCAddress, trxOptions);
   // console.log('liquidateBorrow response', await trx.wait());
  
-  xvsBalance = await venus.borrowBalanceCurrent("XVS", liquidator_wallet);
-  console.log('liquidator_wallet borrowBalanceCurrent XVS', xvsBalance);
+  // xvsBalance = await venus.borrowBalanceCurrent("XVS", liquidator_wallet);
+  // console.log('liquidator_wallet borrowBalanceCurrent XVS', xvsBalance);
  
 
-   xvsBalance = await venus.borrowBalanceCurrent("BNB", borrower3_wallet);
-   console.log('borrowBalanceCurrent XVS', xvsBalance);
+  //  xvsBalance = await venus.borrowBalanceCurrent("BNB", borrower3_wallet);
+  //  console.log('borrowBalanceCurrent XVS', xvsBalance);
   // const repayAmount = xvsBalance.div(3);
   // console.log('repayAmount XVS', repayAmount);
   

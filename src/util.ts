@@ -2,8 +2,8 @@
  * @file Utility
  * @desc These methods are helpers for the Venus class.
  */
-
-import { address, abi } from './constants';
+import { ethers } from 'ethers';
+import { address, abi, decimals } from './constants';
 import { AbiType } from './types';
 
 /* eslint-disable */
@@ -184,6 +184,33 @@ export function getAddress(contract: string, network='mainnet') : string {
 }
 
 /**
+ * Gets the contract name using the contract address. This method supports 
+ *     contracts used by the Venus Protocol.
+ *
+ * @param {string} contractAddress The address of the contract.
+ * @param {string} [network] Optional name of the Ethereum network. Main net and
+ *     all the popular public test nets are supported.
+ *
+ * @returns {string} Returns the name of the contract.
+ *
+ * @example
+ * ```
+ * console.log('Contract at this address: ', Venus.util.getNameByAddress(contractAddress));
+ * ```
+ */
+ export function getAssetNameByAddress(contractAddress: string, network='mainnet') : string {
+  let name: string;
+  const assets = address[network];
+  for (const [assetName, assetAddress] of Object.entries(assets)) {
+    if (contractAddress === assetAddress) {
+      name = assetName;
+    }
+  }
+  return name;
+} 
+ 
+
+/**
  * Gets a contract ABI as a JavaScript array. This method supports 
  *     contracts used by the Venus Protocol.
  *
@@ -223,4 +250,44 @@ export function getNetNameWithChainId(chainId: number) : string {
     97: 'Chapel', // Binance Smart Chain Testnet
   };
   return networks[chainId];
+}
+
+/**
+  * Applies the EIP-55 checksum to an Ethereum address.
+  *
+  * @param {string} _address The Ethereum address to apply the checksum.
+  *
+  * @returns {string} Returns a string of the Ethereum address.
+  */
+ export function toChecksumAddress(address:string):string {
+  const chars = address.toLowerCase().substring(2).split('');
+  const expanded = new Uint8Array(40);
+
+  for (let i = 0; i < 40; i++) {
+    expanded[i] = chars[i].charCodeAt(0);
+  }
+
+  const hash = ethers.utils.keccak256;(expanded);
+  let ret = '';
+
+  for (let i = 0; i < address.length; i++) {
+    if (parseInt(hash[i], 16) >= 8) {
+      ret += address[i].toUpperCase();
+    } else {
+      ret += address[i];
+    }
+  }
+
+  return ret;
+}
+
+/**
+ * Gets the number of decimals of a token
+ *
+ * @param {string} token The name of the token
+ *
+ * @returns {number} Returns the number of decimals used in the token
+ */
+ export function getDecimals(token: string) : number {
+  return decimals[token];
 }
