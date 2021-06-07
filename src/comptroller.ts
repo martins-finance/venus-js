@@ -260,8 +260,10 @@ export async function liquidationIncentive() : Promise<string> {
 export async function onMarketEntered(fromBlock:number, toBlock:number = null) : Promise<string> {
   await netId(this);
 
+  console.log(this);
+  console.log(this._network);
   console.log(address[this._network.name])
-  
+
   const comptrollerAddress = address[this._network.name].Comptroller;
 
   const trxOptions: CallOptions = {
