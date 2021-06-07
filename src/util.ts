@@ -236,7 +236,7 @@ export function getAbi(contract: string): AbiType[] {
  *
  * @example
  * ```
- * console.log('testnet : ', Venus.util.getNetNameWithChainId(97));
+ * console.log('bnbt : ', Venus.util.getNetNameWithChainId(97));
  * ```
  */
 export function getNetNameWithChainId(chainId: number) : string {
@@ -247,7 +247,7 @@ export function getNetNameWithChainId(chainId: number) : string {
     5: 'goerli',
     42: 'kovan',
     56: 'mainnet', // Binance Smart Chain Mainnet
-    97: 'Chapel', // Binance Smart Chain Testnet
+    97: 'bnbt', // Binance Smart Chain Testnet
   };
   return networks[chainId];
 }

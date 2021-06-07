@@ -34,7 +34,7 @@ ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.ERROR);
  * 
  * var venus = new Venus(); // Uses Ethers.js fallback mainnet (for testing only)
  * 
- * var venus = new Venus('testnet'); // Uses Ethers.js fallback (for testing only)
+ * var venus = new Venus('bnbt'); // Uses Ethers.js fallback (for testing only)
  * 
  * // Init with private key (server side)
  * var venus = new Venus('https://mainnet.infura.io/v3/_your_project_id_', {

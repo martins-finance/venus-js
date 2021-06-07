@@ -258,13 +258,13 @@ export async function getProviderNetwork(
   if (network.name === 'unknown') {
     if (networkId === 97) {
       // TODO -- should update later with Chapel
-      // 'testnet',
+      // 'bnbt',
       // {
       //   name: 'Chapel',
       //   networkId: 97,
       //   chainId: 97,
       // },
-      network = { chainId: 97, name: 'testnet' }
+      network = { chainId: 97, name: 'bnbt' }
     } else if (networkId === 56) {
       network = { chainId: 56, name: 'mainnet' }
     }
@@ -344,7 +344,7 @@ export function _createProvider(options: CallOptions = {}): Provider {
   } else if (typeof provider === 'object') {
     provider = new ethers.providers.Web3Provider(provider).getSigner();
   } else {
-    // if (options.network === 'bsc-testnet') {
+    // if (options.network === 'bsc-bnbt') {
     //   const network = {
     //     name: 'Chapel',
     //     networkId: 97,

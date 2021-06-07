@@ -52,7 +52,7 @@ import {
  * (async function() {
  *   const account = await Venus.api.account({
  *     "addresses": "0xB61C5971d9c0472befceFfbE662555B78284c307",
- *     "network": "testnet"
+ *     "network": "bnbt"
  *   });
  * 
  *   let sxpBorrowBalance = 0;
@@ -175,7 +175,7 @@ function queryApi(options: APIRequest, name: string, path: string): Promise<APIR
 
     // TODO -- api service endpoint should be updated.
     let hostname = 'https://api.venus.io';
-    if (options && (options.network === 'testnet')) hostname = 'https://testnetapi.venus.io';
+    if (options && (options.network === 'bnbt')) hostname = 'https://testnetapi.venus.io';
 
     request({
       hostname,
