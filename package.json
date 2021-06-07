@@ -1,5 +1,5 @@
 {
-  "name": "@venusprotocol/venus-js",
+  "name": "@martins-finance/venus-js",
   "version": "2.0.3",
   "author": "Venus Labs, Inc.",
   "description": "A JavaScript SDK for Ethereum and the Venus Protocol.",
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/venusprotocol/venus-js.git"
+    "url": "https://github.com/martins-finance/venus-js.git"
   },
   "keywords": [
     "venus",
