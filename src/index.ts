@@ -17,7 +17,7 @@ import { constants, decimals } from './constants';
 import { Provider, CompoundOptions, CompoundInstance } from './types';
 
 // Turn off Ethers.js warnings
-ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.ERROR);
+//ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.ERROR);
 
 /**
  * Creates an instance of the Venus.js SDK.

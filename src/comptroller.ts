@@ -29,7 +29,7 @@ import { toChecksumAddress, getAssetNameByAddress } from './util';
  * 
  * (async function () {
  *   const trx = await venus.enterMarkets(Venus.SXP); // Use [] for multiple
- *   console.log('Ethers.js transaction object', trx);
+ *   bnbt'Ethers.js transaction object', trx);
  * })().catch(console.error);
  * ```
  */
@@ -90,7 +90,7 @@ export async function enterMarkets(
  * 
  * (async function () {
  *   const trx = await venus.exitMarket(Venus.SXP);
- *   console.log('Ethers.js transaction object', trx);
+ *   bnbt'Ethers.js transaction object', trx);
  * })().catch(console.error);
  * ```
  */
@@ -259,10 +259,6 @@ export async function liquidationIncentive() : Promise<string> {
 
 export async function onMarketEntered(fromBlock:number, toBlock:number = null) : Promise<string> {
   await netId(this);
-
-  console.log(this);
-  console.log(this._network);
-  console.log(address[this._network.name])
 
   const comptrollerAddress = address[this._network.name].Comptroller;
 

@@ -4,7 +4,7 @@ const Venus = require('../../dist/nodejs/index.js');
 //const provider = "https://apis.ankr.com/4806f8c50e3f4b02b3e39384c8f13231/9a48f92ab5ccfbed0b80327a9bbf6d8f/binance/full/main";
 //const wallet = '0xeECc467a08b4070D8555e51042e9FC04878de2b9';
 
-const provider = "https://data-seed-prebsc-1-s1.binance.org:8545/";
+const provider = "http://bscnode.liquid8.app:8545/";
 
 const liquidator_wallet = '0x7c35Bb0DC7536fF003e94C31D49371aCCfED7fA2';
 const mnemonic = "subject novel custom setup nice hungry gentle present pear female riot virtual";
@@ -28,17 +28,10 @@ const venus = new Venus(provider,
 
   (async function () {
 
-    
+  console.log('liquidator_wallet balance', await Venus.venus.getVenusBalance(liquidator_wallet, provider));
+
   const response = await venus.getAccountLiquidity(borrower4_wallet);
-  const [error, liquidity, shortfall] = response;
-  if (!Venus._ethers.BigNumber.from(error).isZero()) {
-    throw new Error(`Error on network call. CODE: {error}`);
-  }
-  const liquidityBalance = Venus._ethers.BigNumber.from(liquidity).sub(
-    Venus._ethers.BigNumber.from(shortfall)
-  );
-  const liquidityBalanceInEther = Venus._ethers.utils.formatEther(liquidityBalance);
-  console.log('borrower5_wallet getAccountLiquidity response', liquidityBalanceInEther);
+  console.log('borrower5_wallet getAccountLiquidity response', response);
   
   
   const assetsIn = await venus.getAssetsIn(borrower5_wallet);
