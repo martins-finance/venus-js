@@ -1,6 +1,6 @@
 {
   "name": "@martins-finance/venus-js",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "author": "Mario Martins",
   "description": "A JavaScript SDK for Ethereum and the Venus Protocol.",
   "license": "BSD-3-Clause",
